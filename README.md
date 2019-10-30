@@ -1,4 +1,4 @@
-# Time Transformation by S2S
+# Time Transformation By S2S
 
 ## Description
 
