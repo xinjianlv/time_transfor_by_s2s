@@ -1,4 +1,4 @@
-# GPT2-LM-MODEL
+# Time Transformation by S2S
 
 ## Description
 
