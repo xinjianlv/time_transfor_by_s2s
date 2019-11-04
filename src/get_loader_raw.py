@@ -122,7 +122,7 @@ def get_data_loaders(data_file, batch_size, train_precent, raw_data = False):
 
 def load_raw_data(in_file):
     data = []
-    f = open(in_file , 'r')
+    f = open(in_file , 'r' , encoding='utf-8')
     lines = f.read().splitlines()
     ndx = 0
     while ndx < len(lines):
