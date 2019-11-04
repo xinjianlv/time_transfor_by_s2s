@@ -21,11 +21,11 @@ class Attention(nn.Module):
 
         attn_energies = self.score(hh, encoder_outputs)  # compute attention score
 
-        dot_attn_energies = self.score(hh , encoder_outputs)
+        # dot_attn_energies = self.score(hh , encoder_outputs)
 
         # pdb.set_trace()
 
-        return F.softmax(dot_attn_energies, dim=1)  # normalize with softmax
+        return F.softmax(attn_energies, dim=1)  # normalize with softmax
 
     def score(self, hidden, encoder_outputs):
         # (seq_len, batch_size, 2*hidden_size)-> (seq_len, batch_size, hidden_size)
