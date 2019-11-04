@@ -1,5 +1,4 @@
 import os , pdb
-from tqdm import tqdm
 
 import json
 from collections import Counter
@@ -90,13 +89,13 @@ def get_data_loaders(data_file, batch_size, train_precent, raw_data = False):
     max_length = max(input_lengths)
     logger.info('max input lengths %d'%(max_length))
     input_padded = []
-    for inputs_ins in tqdm(input_seqs):
+    for inputs_ins in input_seqs:
         input_padded.append(pad_seq(inputs_ins, max_length))
     logger.info('padding target_seqs')
     target_lengths = [len(s) for s in target_seqs]
     max_length = max(target_lengths)
     target_padded = []
-    for target_ins in tqdm(target_seqs):
+    for target_ins in target_seqs:
         target_padded.append(pad_seq(target_ins, max_length))
 
     input_var = torch.LongTensor(input_padded)
