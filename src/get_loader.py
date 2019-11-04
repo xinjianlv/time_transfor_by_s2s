@@ -24,7 +24,8 @@ def build_vocab(texts, n=None):
 def indexes_from_text(text, char2index):
     return [1] + [char2index[c] for c in text] + [2]  # 手动添加开始结束标志
 def pad_seq(seq, max_length):
-    seq += [0 for _ in range(max_length - len(seq))]
+    # seq += [0 for _ in range(max_length - len(seq))]
+    seq += [0] * (max_length - len(seq))
     return seq
 
 def get_data_loaders(data_file , batch_size, train_precent):
@@ -74,7 +75,7 @@ def get_data_loaders(data_file , batch_size, train_precent):
 
 if __name__ == '__main__':
 
-    data_file = '../data/Time Dataset.json'
+    data_file = '../data/time_transfor/Time Dataset.json'
     batch_size = 128
     train_precent = 0.7
 

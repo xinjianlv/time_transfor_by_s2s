@@ -1,34 +1,31 @@
-from argparse import ArgumentParser
-from torch import optim
-from torch import nn
-import torch
-import pdb
-import socket
-from datetime import datetime
 import os
-import logging
+
+from argparse import ArgumentParser
+
+import torch
+from torch import nn
+from torch import optim
+
 from ignite.engine import Engine, Events
 from ignite.handlers import ModelCheckpoint
 from ignite.handlers import EarlyStopping
 from ignite.metrics import Accuracy, Loss, MetricsLambda, RunningAverage
 
-
 from coders import *
 from Seq2Seq import *
-from get_loader import get_data_loaders
-from mylog import *
+from get_loader_raw import get_data_loaders
+from mylog import logger , current_time
 
-current_time = datetime.now().strftime('%b%d_%H-%M-%S')
-logdir = os.path.join('../logs', current_time)
+
 checkpoint_dir = os.path.join('../checkpoint', current_time)
-logger =  Logger(logdir,level='debug').logger
+
 
 def train():
     parser = ArgumentParser()
-    parser.add_argument("--dataset_path", type=str, default="../data/Time Dataset.json",
+    parser.add_argument("--dataset_path", type=str, default="../data/xiaohuangji/xiaohuangji50w_nofenci.seg.conv",
                         help="Path or url of the dataset. If empty download from S3.")
     parser.add_argument("--dataset_cache", type=str, default='../cache/', help="Path or url of the dataset cache")
-    parser.add_argument("--batch_size", type=int, default=100, help="Batch size for validation")
+    parser.add_argument("--batch_size", type=int, default=32, help="Batch size for validation")
     parser.add_argument("--embedding_dim", type=int, default=100, help="Batch size for validation")
     parser.add_argument("--hidden_dim", type=int, default=100, help="Batch size for validation")
     parser.add_argument("--gradient_accumulation_steps", type=int, default=1,
@@ -40,13 +37,14 @@ def train():
                         help="Device (cuda or cpu)")
     parser.add_argument("--max_norm", type=float, default=1.0, help="Clipping gradient norm")
     parser.add_argument("--log_step", type=int, default=10, help="Multiple-choice loss coefficient")
+    parser.add_argument("--raw_data", action='store_true', default=True, help="If true read data by raw function")
     args = parser.parse_args()
     device = torch.device(args.device)
 
 
 
 
-    train_data_loader, valid_data_loader, input_lengths, target_lengths = get_data_loaders(args.dataset_path, args.batch_size, args.train_precent)
+    train_data_loader, valid_data_loader, input_lengths, target_lengths = get_data_loaders(args.dataset_path, args.batch_size, args.train_precent , args.raw_data)
 
     encoder = Encoder(input_lengths + 1, args.embedding_dim, args.hidden_dim)
     decoder = Decoder(target_lengths + 1, args.embedding_dim, args.hidden_dim)
@@ -86,12 +84,13 @@ def train():
     for name, metric in metrics.items():
         metric.attach(evaluator, name)
     Loss(criterion, output_transform=lambda x: (x[0], x[1]))
+
     @trainer.on(Events.EPOCH_COMPLETED)
     def log_validation_results(trainer):
         evaluator.run(valid_data_loader)
         ms = evaluator.state.metrics
-        logger.info("Validation Results - Epoch: {}  Avg accuracy: {:.6f} Avg loss: {:.6f}"
-              .format(trainer.state.epoch, ms['accuracy'], ms['nll']))
+        logger.info("Validation Results - Epoch: [{}/{}]  Avg accuracy: {:.6f} Avg loss: {:.6f}"
+              .format(trainer.state.epoch,trainer.state.max_epochs, ms['accuracy'], ms['nll']))
 
     '''======================early stopping =========================='''
     def score_function(engine):
