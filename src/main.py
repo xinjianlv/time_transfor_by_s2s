@@ -92,6 +92,10 @@ def train():
         logger.info("Validation Results - Epoch: [{}/{}]  Avg accuracy: {:.6f} Avg loss: {:.6f}"
               .format(trainer.state.epoch,trainer.state.max_epochs, ms['accuracy'], ms['nll']))
 
+    steps = len(train_data_loader.dataset) // train_data_loader.batch_size
+    steps = steps if steps > 0 else 1
+    scheduler = WarmupLinearSchedule(optimizer, warmup_steps=args.warmup_steps, t_total=steps)
+
     '''======================early stopping =========================='''
     def score_function(engine):
         val_loss = engine.state.metrics['nll']
