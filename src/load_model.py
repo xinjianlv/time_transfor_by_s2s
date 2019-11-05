@@ -17,13 +17,13 @@ from ignite.metrics import Accuracy, Loss, MetricsLambda, RunningAverage
 from utils import *
 from coders import *
 from Seq2Seq import *
-from get_loader import get_data_loaders
+from get_loader_law import get_data_loaders
 def test():
     parser = ArgumentParser()
-    parser.add_argument("--dataset_path", type=str, default="../data/Time Dataset.json",
+    parser.add_argument("--dataset_path", type=str, default="../data/xiaohuangji/xiaohuangji50w_nofenci.seg.conv",
                         help="Path or url of the dataset. If empty download from S3.")
     parser.add_argument("--check_point", type=str, default='../checkpoint/Oct30_21-01-28/checkpoint_mymodel_8.pth', help="Path or url of the dataset cache")
-    parser.add_argument("--batch_size", type=int, default=100, help="Batch size for validation")
+    parser.add_argument("--batch_size", type=int, default=64, help="Batch size for validation")
     parser.add_argument("--embedding_dim", type=int, default=100, help="Batch size for validation")
     parser.add_argument("--hidden_dim", type=int, default=100, help="Batch size for validation")
     parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu",
@@ -36,7 +36,7 @@ def test():
     logdir = os.path.join('../logs', current_time + '_' + socket.gethostname())
 
 
-    train_data_loader, valid_data_loader, input_lengths, target_lengths = get_data_loaders(args.dataset_path, args.batch_size, args.train_precent)
+    train_data_loader, valid_data_loader, input_lengths, target_lengths = get_data_loaders(args.dataset_path, args.batch_size, args.train_precent,True)
 
     encoder = Encoder(input_lengths + 1, args.embedding_dim, args.hidden_dim)
     decoder = Decoder(target_lengths + 1, args.embedding_dim, args.hidden_dim)
