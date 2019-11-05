@@ -17,7 +17,7 @@ from ignite.metrics import Accuracy, Loss, MetricsLambda, RunningAverage
 from utils import *
 from coders import *
 from Seq2Seq import *
-from get_loader_law import get_data_loaders
+from get_loader_raw import get_data_loaders
 def test():
     parser = ArgumentParser()
     parser.add_argument("--dataset_path", type=str, default="../data/xiaohuangji/xiaohuangji50w_nofenci.seg.conv",
