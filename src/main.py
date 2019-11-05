@@ -25,6 +25,7 @@ def train():
     parser.add_argument("--dataset_path", type=str, default="../data/xiaohuangji/xiaohuangji50w_nofenci.seg.conv",
                         help="Path or url of the dataset. If empty download from S3.")
     parser.add_argument("--dataset_cache", type=str, default='../cache/', help="Path or url of the dataset cache")
+    parser.add_argument("--check_point", type=str, default=None, help="Path or url of the dataset cache")
     parser.add_argument("--batch_size", type=int, default=32, help="Batch size for validation")
     parser.add_argument("--embedding_dim", type=int, default=100, help="Batch size for validation")
     parser.add_argument("--hidden_dim", type=int, default=100, help="Batch size for validation")
@@ -51,6 +52,11 @@ def train():
     model = Seq2Seq(encoder, decoder, device).to(device)
     optimizer = optim.Adam(model.parameters())
     criterion = nn.NLLLoss(ignore_index=0).to(device)
+
+    if args.check_point is not None:
+        logger.info('load checkpoint from %s'%args.check_point)
+        check_point = torch.load(args.check_point)
+        model.load_state_dict(check_point)
 
     def update(engine, batch):
         model.train()
