@@ -24,7 +24,7 @@ class Encoder(nn.Module):
         embedded = self.dropout(self.embedding(input_seqs))
 
         # embedded = [sent len, batch size, emb dim]
-        packed = torch.nn.utils.rnn.pack_padded_sequence(embedded, input_lengths)
+        packed = torch.nn.utils.rnn.pack_padded_sequence(embedded, input_lengths,enforce_sorted=False)
         outputs, hidden = self.rnn(packed, hidden)
         outputs, output_lengths = torch.nn.utils.rnn.pad_packed_sequence(outputs)
         # outputs, hidden = self.rnn(embedded, hidden)
