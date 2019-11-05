@@ -111,8 +111,8 @@ def get_data_loaders(data_file, batch_size, train_precent, raw_data = False):
         tensor_datasets['valid'].append(torch.LongTensor(data_set[name][train_max_num:]))
 
     train_data_set, valid_data_set = TensorDataset(*tensor_datasets['train']), TensorDataset(*tensor_datasets['valid'])
-    train_data_loader = DataLoader(train_data_set, batch_size=batch_size)
-    valid_data_loader = DataLoader(valid_data_set, batch_size=batch_size)
+    train_data_loader = DataLoader(train_data_set, batch_size=batch_size, shuffle = True, drop_last= True)
+    valid_data_loader = DataLoader(valid_data_set, batch_size=batch_size, shuffle = True, drop_last= True)
 
     return train_data_loader, valid_data_loader, len(src_c2ix), len(trg_c2ix)
 
