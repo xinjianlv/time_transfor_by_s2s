@@ -40,6 +40,8 @@ def train():
     parser.add_argument("--log_step", type=int, default=10, help="Multiple-choice loss coefficient")
     parser.add_argument("--raw_data", action='store_true', default=True, help="If true read data by raw function")
     args = parser.parse_args()
+    logger.info(args)
+
     device = torch.device(args.device)
 
 
