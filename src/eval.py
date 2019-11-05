@@ -17,12 +17,12 @@ from ignite.metrics import Accuracy, Loss, MetricsLambda, RunningAverage
 from utils import *
 from coders import *
 from Seq2Seq import *
-from get_loader_raw import get_data_loaders
+from get_loader_raw import get_data_loaders , build_vocab_raw,load_raw_data
 def test():
     parser = ArgumentParser()
     parser.add_argument("--dataset_path", type=str, default="../data/xiaohuangji/xiaohuangji50w_nofenci.seg.conv",
                         help="Path or url of the dataset. If empty download from S3.")
-    parser.add_argument("--check_point", type=str, default='../checkpoint/Oct30_21-01-28/checkpoint_mymodel_8.pth', help="Path or url of the dataset cache")
+    parser.add_argument("--check_point", type=str, default='../checkpoint/Nov05_20-45-33/checkpoint_mymodel_8.pth', help="Path or url of the dataset cache")
     parser.add_argument("--batch_size", type=int, default=64, help="Batch size for validation")
     parser.add_argument("--embedding_dim", type=int, default=100, help="Batch size for validation")
     parser.add_argument("--hidden_dim", type=int, default=100, help="Batch size for validation")
@@ -46,21 +46,21 @@ def test():
     model.load_state_dict(check_point)
     model.eval()
 
-    pairs = json.load(open('../data/Time Dataset.json', 'rt', encoding='utf-8'))
+    pairs = load_raw_data(args.dataset_path)
     data = array(pairs)
     src_texts = data[:, 0]
     trg_texts = data[:, 1]
-    src_c2ix, src_ix2c = build_vocab(src_texts)
-    trg_c2ix, trg_ix2c = build_vocab(trg_texts)
+    src_c2ix, src_ix2c = build_vocab_raw(src_texts)
+    trg_c2ix, trg_ix2c = build_vocab_raw(trg_texts)
 
     def get_decode(src):
         result = []
         for t in src:
             result.append(src_ix2c[t])
         sndx = 0
-        if '^' in result:
-            sndx = result.index('^') + 1
-        endx = result.index('$')
+        if '<s>' in result:
+            sndx = result.index('<s>') + 1
+        endx = result.index('<e>')
         return ''.join(result[sndx:endx])
 
     def get_decode_target(target):
@@ -68,9 +68,9 @@ def test():
         for t in target:
             result.append(trg_ix2c[int(t)])
         sndx = 0
-        if '^' == result[0]:
-            sndx = result.index('^') + 1
-        endx = result.index('$')
+        if '<s>' == result[0]:
+            sndx = result.index('<s>') + 1
+        endx = result.index('<e>')
         return ''.join(result[sndx:endx])
 
     max_src_len = max(list(map(len, src_texts))) + 2
