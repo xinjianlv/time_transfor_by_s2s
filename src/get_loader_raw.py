@@ -134,7 +134,14 @@ def load_raw_data(in_file):
         else:
             question , ndx = get_sentences(lines , ndx)
             answer , ndx = get_sentences(lines , ndx)
-
+            if question.startswith('=') or \
+                    question.startswith('-') or \
+                    question.startswith('。'):
+                continue
+            if answer.startswith('=') or \
+                    answer.startswith('-') or \
+                    answer.startswith('。'):
+                continue
             ins = [question, answer]
             data.append(ins)
     f.close()
