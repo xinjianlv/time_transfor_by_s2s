@@ -9,14 +9,12 @@ import numpy
 import socket
 from datetime import datetime
 import os
-import logging
-from ignite.engine import Engine, Events
-from ignite.handlers import ModelCheckpoint
-from ignite.metrics import Accuracy, Loss, MetricsLambda, RunningAverage
+
 
 from utils import *
 from coders import *
 from Seq2Seq import *
+from  mylog import logger
 from get_loader_raw import get_data_loaders , build_vocab_raw,load_raw_data
 def test():
     parser = ArgumentParser()
@@ -87,10 +85,10 @@ def test():
         outputs_index_mat = outputs_index.permute(1,0)
 
         for i in range(outputs_index_mat.shape[0]):
-            print('src:    \t' , get_decode(src_seqs.cpu().permute(1,0)[i].numpy()))
-            print('target :\t' , get_decode_target(trg_seqs.cpu().permute(1,0)[i].numpy()))
-            print('predict:\t' , get_decode_target(outputs_index_mat[i].detach().numpy()[1:]))
-            print('='*64)
+            logger.info('src:    \t%s'%get_decode(src_seqs.cpu().permute(1,0)[i].numpy()))
+            logger.info('target :\t%s'%get_decode_target(trg_seqs.cpu().permute(1,0)[i].numpy()))
+            logger.info('predict:\t%s'%get_decode_target(outputs_index_mat[i].detach().numpy()[1:]))
+            logger.info('='*64)
 
 if __name__ == '__main__':
     test()
