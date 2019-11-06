@@ -117,7 +117,7 @@ def get_data_loaders(data_file, batch_size, train_precent, raw_data = False):
     return train_data_loader, valid_data_loader, len(src_c2ix), len(trg_c2ix)
 
 
-'''==============================================load dialogue========================================================'''
+'''=======================================load dialogue data===================================================='''
 
 
 def load_raw_data(in_file):

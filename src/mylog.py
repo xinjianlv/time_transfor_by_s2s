@@ -1,4 +1,4 @@
-import os
+import os , pdb
 import logging
 from logging import handlers
 from datetime import datetime
@@ -23,10 +23,12 @@ class Logger(object):
         self.logger.addHandler(th)
 
 
-
 current_time = datetime.now().strftime('%b%d_%H-%M-%S')
-logdir = os.path.join('./logs', current_time)
-logger = Logger(logdir,level='debug').logger
+current_dir = os.path.abspath(os.path.dirname(__file__))
+base_dir , current_dir = os.path.split(current_dir)
+logdir = os.path.join(base_dir , 'logs')
+logfile = os.path.join(logdir, current_time + '.txt')
+logger = Logger(logfile,level='debug').logger
 
 if __name__ == '__main__':
     logger = Logger('../logs/all.log',level='debug').logger
