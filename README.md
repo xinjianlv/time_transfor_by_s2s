@@ -12,9 +12,8 @@
     2）develop分支：对话生成，根据上文生成下文
     例：
     
-![avatar](result_demo/demo_2.png)
+![avatar](result_demo/demo_2.png , width = 180 height=40)
     
-![temp](https://github.com/xinjianlv/time_transfor_by_s2s/tree/master/result_demo/demo_2.png) 
    
 结构描述：
 
