@@ -11,7 +11,7 @@
     "eleven hours and thirteen p.m.", "23:13"
     2）develop分支：对话生成，根据上文生成下文
     例：
-    ![avatar](result_demo/full1.jpg)
+    ![avatar](result_demo/demo_2.png)
     ![temp](https://github.com/xinjianlv/time_transfor_by_s2s/tree/master/result_demo/demo_2.png) 
    
 结构描述：
