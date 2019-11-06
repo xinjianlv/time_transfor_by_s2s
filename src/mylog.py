@@ -25,7 +25,7 @@ class Logger(object):
 
 
 current_time = datetime.now().strftime('%b%d_%H-%M-%S')
-logdir = os.path.join('../logs', current_time)
+logdir = os.path.join('./logs', current_time)
 logger = Logger(logdir,level='debug').logger
 
 if __name__ == '__main__':
