@@ -68,7 +68,9 @@ def test():
         sndx = 0
         if '<s>' == result[0]:
             sndx = result.index('<s>') + 1
-        endx = result.index('<e>')
+        endx = len(result) - 1
+        if '<e>' in result:
+            endx = result.index('<e>')
         return ''.join(result[sndx:endx])
 
     max_src_len = max(list(map(len, src_texts))) + 2
