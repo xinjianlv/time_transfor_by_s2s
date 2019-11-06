@@ -10,10 +10,8 @@
 ![time_transfor](sample/demo_1.png)
     2）develop分支：对话生成，根据上文生成下文
     例：
-    
 ![dialogue](sample/demo_2.png)
     
-   
 结构描述：
 
     ./checkpoint/  : checkpoint文件保存路径 
