@@ -156,7 +156,7 @@ def train():
     steps = steps if steps > 0 else 1
     logger.info('steps:%d' % steps)
 
-    #单卡local_rank等于1，多卡时，只在0号卡上打印信息。
+    #单卡local_rank等于-1，多卡时，只在0号卡上打印信息。
     if args.local_rank in [-1, 1]:
         @trainer.on(Events.EPOCH_COMPLETED)
         def log_validation_results(trainer):
