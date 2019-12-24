@@ -13,7 +13,7 @@ from ignite.metrics import Accuracy, Loss, MetricsLambda, RunningAverage
 
 from coders import *
 from Seq2Seq import *
-from get_loader_raw import get_data_loaders
+from get_loader import get_data_loaders
 from mylog import logger , current_time
 
 
@@ -22,7 +22,7 @@ checkpoint_dir = os.path.join('../checkpoint', current_time)
 
 def train():
     parser = ArgumentParser()
-    parser.add_argument("--dataset_path", type=str, default="../data/xiaohuangji/xiaohuangji50w_nofenci.seg.conv",
+    parser.add_argument("--dataset_path", type=str, default="../data/time_transfor/Time Dataset.json",
                         help="Path or url of the dataset. If empty download from S3.")
     parser.add_argument("--dataset_cache", type=str, default='../cache/', help="Path or url of the dataset cache")
     parser.add_argument("--batch_size", type=int, default=32, help="Batch size for validation")
@@ -44,7 +44,7 @@ def train():
 
 
 
-    train_data_loader, valid_data_loader, input_lengths, target_lengths = get_data_loaders(args.dataset_path, args.batch_size, args.train_precent , args.raw_data)
+    train_data_loader, valid_data_loader, input_lengths, target_lengths = get_data_loaders(args.dataset_path, args.batch_size, args.train_precent)
 
     encoder = Encoder(input_lengths + 1, args.embedding_dim, args.hidden_dim)
     decoder = Decoder(target_lengths + 1, args.embedding_dim, args.hidden_dim)
