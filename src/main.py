@@ -58,7 +58,7 @@ def train():
 
     #跳过编号为0的卡
     if args.local_rank != -1:
-        args.local_rank += 1
+       args.local_rank += 1
     args.distributed = (args.local_rank != -1)
 
     #分布式的初始化要在get_data_loaders前，get_data_loaders中DistributedSampler使用了分布试信息
@@ -115,12 +115,6 @@ def train():
             return output.contiguous().view(-1, output.shape[2]), trg_seqs.contiguous().view(-1)
 
     evaluator = Engine(inference)
-    # metrics = {"nll": Loss(criterion, output_transform=lambda x: (x[0], x[1])),
-    #            "accuracy": Accuracy(output_transform=lambda x: (x[0], x[1]))}
-    # for name, metric in metrics.items():
-    #     metric.attach(evaluator, name)
-    # Loss(criterion, output_transform=lambda x: (x[0], x[1]))
-
 
     # Prepare metrics - note how we compute distributed metrics
     RunningAverage(output_transform=lambda x: x).attach(trainer, "loss")
@@ -156,14 +150,16 @@ def train():
     steps = steps if steps > 0 else 1
     logger.info('steps:%d' % steps)
 
-    #单卡local_rank等于-1，多卡时，只在0号卡上打印信息。
+    @trainer.on(Events.EPOCH_COMPLETED)
+    def log_validation_results(trainer):
+        evaluator.run(valid_data_loader)
+        ms = evaluator.state.metrics
+        logger.info("Validation Results - Epoch: [{}/{}]  Avg accuracy: {:.6f} Avg loss: {:.6f}"
+                    .format(trainer.state.epoch, trainer.state.max_epochs, ms['accuracy'], ms['nll']))
+
+    #单卡local_rank等于1，多卡时，只在第一个卡上打印信息。
+    # -1:单卡时的情况，1：多卡时第一个卡（注意：0号卡在前面跳过去了，所以这时是1，不是0）
     if args.local_rank in [-1, 1]:
-        @trainer.on(Events.EPOCH_COMPLETED)
-        def log_validation_results(trainer):
-            evaluator.run(valid_data_loader)
-            ms = evaluator.state.metrics
-            logger.info("Validation Results - Epoch: [{}/{}]  Avg accuracy: {:.6f} Avg loss: {:.6f}"
-                        .format(trainer.state.epoch, trainer.state.max_epochs, ms['accuracy'], ms['nll']))
 
         @trainer.on(Events.ITERATION_COMPLETED)
         def log_training_loss(trainer):
@@ -174,8 +170,10 @@ def train():
                                                                            steps,
                                                                            trainer.state.output * args.gradient_accumulation_steps)
                             )
+
         '''================add check point========================'''
-        checkpoint_handler = ModelCheckpoint(checkpoint_dir, 'checkpoint', save_interval=1, n_saved=3)
+        logs_dir = checkpoint_dir + '/' + str(args.local_rank)
+        checkpoint_handler = ModelCheckpoint(logs_dir, 'checkpoint', save_interval=1, n_saved=3)
         trainer.add_event_handler(Events.EPOCH_COMPLETED, checkpoint_handler, {'mymodel': getattr(model, 'module', model)})  # "getattr" take care of distributed encapsulation
 
     '''==============run trainer============================='''
