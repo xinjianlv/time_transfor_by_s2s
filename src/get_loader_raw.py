@@ -53,10 +53,7 @@ def pad_seq(seq, max_length):
 
 
 def get_data_loaders(data_file, batch_size, train_precent, raw_data= False, distributed=False):
-    if raw_data:
-        pairs = load_raw_data(data_file)
-    else:
-        pairs = json.load(open(data_file, 'rt', encoding='utf-8'))
+    pairs = load_raw_data(data_file)
     data = array(pairs)
     src_texts = data[:, 0]
     trg_texts = data[:, 1]
