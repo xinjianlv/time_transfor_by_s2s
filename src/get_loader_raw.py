@@ -111,13 +111,15 @@ def get_data_loaders(data_file, batch_size, train_precent, raw_data= False, dist
         tensor_datasets['valid'].append(torch.LongTensor(data_set[name][train_max_num:]))
 
     train_data_set, valid_data_set = TensorDataset(*tensor_datasets['train']), TensorDataset(*tensor_datasets['valid'])
-    train_sampler = torch.utils.data.distributed.DistributedSampler(train_data_set) if distributed else None
-    valid_sampler = torch.utils.data.distributed.DistributedSampler(valid_data_set) if distributed else None
     train_data_loader = DataLoader(train_data_set, batch_size=batch_size, shuffle = True, drop_last= True)
     valid_data_loader = DataLoader(valid_data_set, batch_size=batch_size, shuffle = True, drop_last= True)
 
-    return train_data_loader, valid_data_loader, train_sampler , valid_sampler , len(src_c2ix), len(trg_c2ix)
+    if distributed:
+        train_sampler = torch.utils.data.distributed.DistributedSampler(train_data_set) if distributed else None
+        valid_sampler = torch.utils.data.distributed.DistributedSampler(valid_data_set) if distributed else None
+        return train_data_loader, valid_data_loader, train_sampler , valid_sampler , len(src_c2ix), len(trg_c2ix)
 
+    return train_data_loader, valid_data_loader,  len(src_c2ix), len(trg_c2ix)
 
 '''=======================================load dialogue data===================================================='''
 

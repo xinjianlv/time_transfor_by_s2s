@@ -34,7 +34,7 @@ def test():
     logdir = os.path.join('../logs', current_time + '_' + socket.gethostname())
 
 
-    train_data_loader, valid_data_loader, input_lengths, target_lengths = get_data_loaders(args.dataset_path, args.batch_size, args.train_precent,True)
+    train_data_loader, valid_data_loader, input_lengths, target_lengths = get_data_loaders(args.dataset_path, args.batch_size, args.train_precent,True,False)
 
     encoder = Encoder(input_lengths + 1, args.embedding_dim, args.hidden_dim)
     decoder = Decoder(target_lengths + 1, args.embedding_dim, args.hidden_dim)
