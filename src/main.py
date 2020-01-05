@@ -54,6 +54,7 @@ def train():
     parser.add_argument("--raw_data", action='store_true', default=True, help="If true read data by raw function")
     parser.add_argument("--local_rank", type=int, default=-1,
                         help="Local rank for distributed training (-1: not distributed)")
+    parser.add_argument("--first_gpu",type=int , default=0 , help="the first gpu to use and we will show information on it")
     args = parser.parse_args()
     logger.info(args)
 
@@ -61,7 +62,7 @@ def train():
 
     #跳过编号为0的卡
     if args.local_rank != -1:
-       args.local_rank += 1
+       args.local_rank += args.first_gpu
     args.distributed = (args.local_rank != -1)
 
     #分布式的初始化要在get_data_loaders前，get_data_loaders中DistributedSampler使用了分布试信息
@@ -167,7 +168,7 @@ def train():
 
     #单卡local_rank等于1，多卡时，只在第一个卡上打印信息。
     # -1:单卡时的情况，1：多卡时第一个卡（注意：0号卡在前面跳过去了，所以这时是1，不是0）
-    if args.local_rank in [-1, 1]:
+    if args.local_rank in [-1, args.first_gpu]:
 
         @trainer.on(Events.ITERATION_COMPLETED)
         def log_training_loss(trainer):
