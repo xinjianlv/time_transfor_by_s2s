@@ -108,12 +108,10 @@ def get_data_loaders(sfile , tfile, batch_size, train_precent, password , distri
     train_data_loader = DataLoader(train_data_set, batch_size=batch_size, shuffle = True, drop_last= True)
     valid_data_loader = DataLoader(valid_data_set, batch_size=batch_size, shuffle = True, drop_last= True)
 
-    if distributed:
-        train_sampler = torch.utils.data.distributed.DistributedSampler(train_data_set) if distributed else None
-        valid_sampler = torch.utils.data.distributed.DistributedSampler(valid_data_set) if distributed else None
-        return train_data_loader, valid_data_loader, train_sampler , valid_sampler , len(src_c2ix), len(trg_c2ix)
+    train_sampler = torch.utils.data.distributed.DistributedSampler(train_data_set) if distributed else None
+    valid_sampler = torch.utils.data.distributed.DistributedSampler(valid_data_set) if distributed else None
+    return train_data_loader, valid_data_loader, train_sampler , valid_sampler , len(src_c2ix), len(trg_c2ix)
 
-    return train_data_loader, valid_data_loader,  len(src_c2ix), len(trg_c2ix)
 
 '''=======================================load dialogue data===================================================='''
 
