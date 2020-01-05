@@ -32,10 +32,11 @@ def average_distributed_scalar(scalar, args):
 
 def train():
     parser = ArgumentParser()
-    parser.add_argument("--source_dataset_path", type=str, default="../data/translate/small/clean3.en.1000",
+    parser.add_argument("--source_dataset_path", type=str, default="../data/translate/small/clean3.en.zip",
                         help="Path or url of the dataset. If empty download from S3.")
-    parser.add_argument("--target_dataset_path", type=str, default="../data/translate/small/clean3.zh.1000",
+    parser.add_argument("--target_dataset_path", type=str, default="../data/translate/small/clean3.zh.zip",
                         help="Path or url of the dataset. If empty download from S3.")
+    parser.add_argument("--data_ch",type=str)
     parser.add_argument("--dataset_cache", type=str, default='../cache/', help="Path or url of the dataset cache")
     parser.add_argument("--check_point", type=str, default=None, help="Path or url of the dataset cache")
     parser.add_argument("--batch_size", type=int, default=32, help="Batch size for validation")
@@ -69,14 +70,13 @@ def train():
         args.device = torch.device("cuda", args.local_rank)
         torch.distributed.init_process_group(backend='nccl', init_method='env://')
 
-
     train_data_loader, valid_data_loader, train_sampler , valid_sampler , input_lengths, target_lengths = \
-        get_data_loaders(args.source_dataset_path, \
-                         args.target_dataset_path, \
-                         args.batch_size, \
-                         args.train_precent ,\
-                         args.raw_data,\
-                         args.distributed)
+        get_data_loaders(sfile = args.source_dataset_path, \
+                         tfile = args.target_dataset_path, \
+                         password = args.data_ch, \
+                         batch_size = args.batch_size, \
+                         train_precent = args.train_precent ,\
+                         distributed = args.distributed)
 
     encoder = Encoder(input_lengths + 1, args.embedding_dim, args.hidden_dim)
     decoder = Decoder(target_lengths + 1, args.embedding_dim, args.hidden_dim)
