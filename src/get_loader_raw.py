@@ -1,9 +1,10 @@
 import os , pdb
 
 import json
+import torch
+import zipfile as zf
 from collections import Counter
 from numpy import *
-import torch
 from torch.utils.data import DataLoader, TensorDataset
 from mylog import logger
 
@@ -52,18 +53,14 @@ def pad_seq(seq, max_length):
     return seq
 
 
-def get_data_loaders(data_file, batch_size, train_precent, raw_data= False, distributed=False):
-    pairs = load_raw_data(data_file)
+def get_data_loaders(sfile , tfile, batch_size, train_precent, password , distributed=False):
+    pairs = load_raw_data(sfile , tfile , password)
     data = array(pairs)
     src_texts = data[:, 0]
     trg_texts = data[:, 1]
     logger.info('build vocab...')
-    if raw_data:
-        src_c2ix, src_ix2c = build_vocab_raw(src_texts)
-        trg_c2ix, trg_ix2c = build_vocab_raw(trg_texts)
-    else:
-        src_c2ix, src_ix2c = build_vocab(src_texts)
-        trg_c2ix, trg_ix2c = build_vocab(trg_texts)
+    src_c2ix, src_ix2c = build_vocab_raw(src_texts)
+    trg_c2ix, trg_ix2c = build_vocab_raw(trg_texts)
 
     max_src_len = max(list(map(len, src_texts))) + 2
     max_trg_len = max(list(map(len, trg_texts))) + 2
@@ -121,32 +118,20 @@ def get_data_loaders(data_file, batch_size, train_precent, raw_data= False, dist
 '''=======================================load dialogue data===================================================='''
 
 
-def load_raw_data(in_file):
+def load_raw_data(sfile , tfile , password):
     data = []
-    f = open(in_file , 'r' , encoding='utf-8')
-    lines = f.read().splitlines()
-    ndx = 0
-    while ndx < len(lines):
-        if ndx % 10000 == 0 :
-            logger.info('load [%d] line.'%ndx)
-        line = lines[ndx]
-        if line.startswith('E'):
-            ndx += 1
-        else:
-            question , ndx = get_sentences(lines , ndx)
-            answer , ndx = get_sentences(lines , ndx)
-            if question.startswith('=') or \
-                    question.startswith('-') or \
-                    question.startswith('。'):
-                continue
-            if answer.startswith('=') or \
-                    answer.startswith('-') or \
-                    answer.startswith('。'):
-                continue
-            ins = [question, answer]
+    source_name = os.path.basename(sfile).replace('.zip' , '')
+    target_name = os.path.basename(tfile).replace('.zip' , '')
+    pdb.set_trace()
+    with zf.ZipFile(sfile, 'r') as source , zf.ZipFile(tfile , 'r') as target:
+        sf = source.open(source_name, pwd=password.encode('utf-8'))
+        tf = target.open(target_name, pwd=password.encode('utf-8'))
+        for sline , tline in zip(sf , tf):
+            ins = [sline.decode(), tline.decode()]
             data.append(ins)
-    f.close()
-    return data
+        sf.close()
+        tf.close()
+        return data
 
 
 def get_sentences(lines , ndx):
@@ -158,12 +143,13 @@ def get_sentences(lines , ndx):
     return line.strip() , ndx
 if __name__ == '__main__':
 
-    data_file = '../data/time_transfor/Time Dataset.json'
     batch_size = 128
     train_precent = 0.7
-    # train_data_loader, valid_data_loader, input_lengths, target_lengths = get_data_loaders(data_file , batch_size , train_precent)
-
-    data_file = '../data/xiaohuangji/xiaohuangji50w_nofenci.seg.conv'
-    train_data_loader, valid_data_loader, input_lengths, target_lengths = get_data_loaders(data_file , batch_size , train_precent,True)
-    pdb.set_trace()
+    data_root = '../data/translate/small/'
+    train_data_loader, valid_data_loader, input_lengths, target_lengths = get_data_loaders(\
+        sfile = data_root + 'clean3.en.zip' ,
+        tfile = data_root + 'clean3.zh.zip',
+        batch_size = batch_size ,
+        train_precent=train_precent,
+        password='')
     print('end...')
