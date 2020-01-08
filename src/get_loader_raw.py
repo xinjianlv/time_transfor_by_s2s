@@ -120,7 +120,6 @@ def load_raw_data(sfile , tfile , password):
     data = []
     source_name = os.path.basename(sfile).replace('.zip' , '')
     target_name = os.path.basename(tfile).replace('.zip' , '')
-    pdb.set_trace()
     with zf.ZipFile(sfile, 'r') as source , zf.ZipFile(tfile , 'r') as target:
         sf = source.open(source_name, pwd=password.encode('utf-8'))
         tf = target.open(target_name, pwd=password.encode('utf-8'))
