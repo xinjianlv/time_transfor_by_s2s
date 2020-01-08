@@ -54,10 +54,7 @@ def pad_seq(seq, max_length):
 
 
 def get_data_loaders(sfile , tfile, batch_size, train_precent, password , distributed=False):
-    pairs = load_raw_data(sfile , tfile , password)
-    data = array(pairs)
-    src_texts = data[:, 0]
-    trg_texts = data[:, 1]
+    src_texts, trg_texts = load_raw_data(sfile , tfile , password)
     logger.info('build vocab...')
     src_c2ix, src_ix2c = build_vocab_raw(src_texts)
     trg_c2ix, trg_ix2c = build_vocab_raw(trg_texts)
@@ -68,11 +65,9 @@ def get_data_loaders(sfile , tfile, batch_size, train_precent, password , distri
 
     logger.info('build input and target vectors...')
     input_seqs, target_seqs = [], []
-    for i in range(len(pairs)):
-        if len(pairs[i][0].split(' ')) > 100 or len(pairs[i][1].split(' ')) > 100:
-            continue
-        input_seqs.append(indexes_from_text(pairs[i][0].split(' '), src_c2ix))
-        target_seqs.append(indexes_from_text(pairs[i][1].split(' '), trg_c2ix))
+    for i in range(len(src_texts)):
+        input_seqs.append(indexes_from_text(src_texts[i].split(' '), src_c2ix))
+        target_seqs.append(indexes_from_text(trg_texts[i].split(' '), trg_c2ix))
 
     logger.info('sort seq_pairs...')
     seq_pairs = sorted(zip(input_seqs, target_seqs), key=lambda p: len(p[0]), reverse=True)
@@ -117,7 +112,8 @@ def get_data_loaders(sfile , tfile, batch_size, train_precent, password , distri
 
 
 def load_raw_data(sfile , tfile , password):
-    data = []
+    source_data = []
+    target_data = []
     source_name = os.path.basename(sfile).replace('.zip' , '')
     target_name = os.path.basename(tfile).replace('.zip' , '')
     with zf.ZipFile(sfile, 'r') as source , zf.ZipFile(tfile , 'r') as target:
@@ -127,12 +123,12 @@ def load_raw_data(sfile , tfile , password):
         for sline , tline in zip(sf , tf):
             if line_counter % 10000 == 0:
                 print('process line[{%d}]...'%line_counter)
-            ins = [sline.decode(), tline.decode()]
-            data.append(ins)
+            source_data.append(sline.decode())
+            target_data.append(tline.decode())
             line_counter += 1
         sf.close()
         tf.close()
-        return data
+    return source_data , target_data
 
 
 def get_sentences(lines , ndx):
