@@ -123,9 +123,13 @@ def load_raw_data(sfile , tfile , password):
     with zf.ZipFile(sfile, 'r') as source , zf.ZipFile(tfile , 'r') as target:
         sf = source.open(source_name, pwd=password.encode('utf-8'))
         tf = target.open(target_name, pwd=password.encode('utf-8'))
+        line_counter = 0
         for sline , tline in zip(sf , tf):
+            if line_counter % 10000 == 0:
+                print('process line[{d%}]...'%{line_counter})
             ins = [sline.decode(), tline.decode()]
             data.append(ins)
+            line_counter += 1
         sf.close()
         tf.close()
         return data
