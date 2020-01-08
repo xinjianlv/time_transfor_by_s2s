@@ -54,6 +54,7 @@ def train():
     parser.add_argument("--local_rank", type=int, default=-1,
                         help="Local rank for distributed training (-1: not distributed)")
     parser.add_argument("--first_gpu",type=int , default=0 , help="the first gpu to use and we will show information on it")
+    parser.add_argument("--pwd",type=str)
     args = parser.parse_args()
     logger.info(args)
 
@@ -69,14 +70,13 @@ def train():
         torch.cuda.set_device(args.local_rank)
         args.device = torch.device("cuda", args.local_rank)
         torch.distributed.init_process_group(backend='nccl', init_method='env://')
-    password = input('password:')
-    train_data_loader, valid_data_loader, train_sampler , valid_sampler , input_lengths, target_lengths = \
-        get_data_loaders(sfile = args.source_dataset_path, \
-                         tfile = args.target_dataset_path, \
-                         password = password, \
-                         batch_size = args.batch_size, \
-                         train_precent = args.train_precent ,\
-                         distributed = args.distributed)
+    train_data_loader, valid_data_loader, train_sampler, valid_sampler , input_lengths, target_lengths = \
+        get_data_loaders(sfile=args.source_dataset_path,
+                         tfile=args.target_dataset_path,
+                         password=args.pwd,
+                         batch_size=args.batch_size,
+                         train_precent=args.train_precent,
+                         distributed=args.distributed)
 
     encoder = Encoder(input_lengths + 1, args.embedding_dim, args.hidden_dim)
     decoder = Decoder(target_lengths + 1, args.embedding_dim, args.hidden_dim)
