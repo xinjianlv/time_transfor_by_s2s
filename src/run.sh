@@ -1,1 +1,1 @@
-python -m torch.distributed.launch --nproc_per_node=2 main.py
+main.py --source_dataset_path ../data/translate/big/clean3.en.zip --target_dataset_path ../data/translate/big/clean3.zh.zip --first_gpu 1 --n_epochs 30 --batch_size 64 --log_step 10 > log.out &
