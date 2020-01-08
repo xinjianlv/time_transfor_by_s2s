@@ -126,7 +126,7 @@ def load_raw_data(sfile , tfile , password):
         line_counter = 0
         for sline , tline in zip(sf , tf):
             if line_counter % 10000 == 0:
-                print('process line[{d%}]...'%{line_counter})
+                print('process line[{%d}]...'%line_counter)
             ins = [sline.decode(), tline.decode()]
             data.append(ins)
             line_counter += 1
